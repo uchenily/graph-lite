@@ -46,20 +46,17 @@ public:
      */
     // template <typename T,
     //           std::enable_if_t<std::is_base_of<GElement, T>::value, int> = 0>
-    auto registerGElement(GElement                   *elementRef,
-                          const std::set<GElement *> &depends,
-                          const std::string          &name) -> CStatus {
+    auto registerGElement(const std::string          &name,
+                          GElement                   *element,
+                          const std::set<GElement *> &depends) -> CStatus {
         if (std::any_of(depends.begin(), depends.end(), [](GElement *ptr) {
                 return ptr == nullptr;
             })) {
             return CStatus("input is null"); // no allow empty input
         }
 
-        // (*elementRef) = new (std::nothrow) T();
-        // (*elementRef)->addElementInfo(depends, name, &param_manager_);
-        elementRef->addElementInfo(depends, name, &param_manager_);
-        // elements_.emplace_back(*elementRef);
-        elements_.emplace_back(elementRef);
+        element->addElementInfo(depends, name, &param_manager_);
+        elements_.emplace_back(element);
         return CStatus();
     }
 

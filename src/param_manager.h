@@ -9,6 +9,7 @@
 #ifndef CGRAPH_LITE_PARAM_MANAGER_H
 #define CGRAPH_LITE_PARAM_MANAGER_H
 
+#include <memory>
 #include <mutex>
 #include <typeinfo>
 #include <unordered_map>
@@ -21,7 +22,8 @@ protected:
               std::enable_if_t<std::is_base_of<GParam, T>::value, int> = 0>
     auto create(const std::string &key) -> CStatus {
         std::lock_guard<std::mutex> lk(mutex_);
-        auto                        iter = params_.find(key);
+
+        auto iter = params_.find(key);
         if (iter != params_.end()) {
             auto p = iter->second;
             return (typeid(*p).name() == typeid(T).name())
@@ -29,7 +31,7 @@ protected:
                        : CStatus("create [" + key + "] param duplicate");
         }
 
-        T *param = new (std::nothrow) T();
+        auto param = std::make_shared<T>();
         params_.insert(std::pair<std::string, T *>(key, param));
         return CStatus();
     }
@@ -60,15 +62,12 @@ protected:
     }
 
     ~GParamManager() {
-        for (auto &iter : params_) {
-            delete iter.second;
-        }
         params_.clear();
     }
 
 private:
-    std::unordered_map<std::string, GParam *> params_{};
-    std::mutex                                mutex_{};
+    std::unordered_map<std::string, std::shared_ptr<GParam>> params_{};
+    std::mutex                                               mutex_{};
 
     friend class GParam;
     friend class GElement;

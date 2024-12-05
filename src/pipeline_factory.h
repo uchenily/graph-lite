@@ -10,22 +10,12 @@
 #define CGRAPH_LITE_PIPELINE_FACTORY_H
 
 #include "pipeline.h"
-#include "status.h"
 
 class GPipelineFactory {
 public:
-    static auto create() -> GPipeline * {
-        auto pipeline = new GPipeline();
+    static auto create() {
+        auto pipeline = std::make_shared<GPipeline>();
         return pipeline;
-    }
-
-    static auto remove(GPipeline *pipeline) -> CStatus {
-        if (pipeline) {
-            delete pipeline;
-            pipeline = nullptr;
-        }
-
-        return CStatus();
     }
 };
 

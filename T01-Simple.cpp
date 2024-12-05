@@ -35,13 +35,12 @@ void tutorial_simple() {
     MyNode2 d;
 
     auto pipeline = GPipelineFactory::create();
-    pipeline->registerGElement(&a, {}, "nodeA");
-    pipeline->registerGElement(&b, {&a}, "nodeB");
-    pipeline->registerGElement(&c, {&a}, "nodeC");
-    pipeline->registerGElement(&d, {&b, &c}, "nodeD");
+    pipeline->registerGElement("nodeA", &a, {});
+    pipeline->registerGElement("nodeB", &b, {&a});
+    pipeline->registerGElement("nodeC", &c, {&a});
+    pipeline->registerGElement("nodeD", &d, {&b, &c});
 
     pipeline->process();
-    GPipelineFactory::remove(pipeline);
 }
 
 auto main() -> int {
