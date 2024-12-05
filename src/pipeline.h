@@ -27,7 +27,7 @@ public:
      * @param times
      * @return
      */
-    auto process(size_t times = 1) -> CStatus {
+    auto process(size_t times = 1) -> Status {
         init();
         while (((times--) != 0u) && status_.isOK()) {
             run();
@@ -48,24 +48,23 @@ public:
     //           std::enable_if_t<std::is_base_of<GElement, T>::value, int> = 0>
     auto registerNode(const std::string       &name,
                       GNode                   *node,
-                      const std::set<GNode *> &dependencies) -> CStatus {
+                      const std::set<GNode *> &dependencies) -> Status {
         // check not null
         if (std::any_of(dependencies.begin(),
                         dependencies.end(),
                         [](GNode *ptr) {
                             return ptr == nullptr;
                         })) {
-            return CStatus("input is null"); // no allow empty input
+            return Status::Invalid("input is null"); // no allow empty input
         }
 
         node->addNodeInfo(dependencies, name, &param_manager_);
         nodes_.emplace_back(node);
-        return CStatus();
+        return Status::OK();
     }
 
 protected:
     void init() {
-        status_ = CStatus();
         for (auto *node : nodes_) {
             status_ += node->init();
         }
@@ -142,7 +141,7 @@ private:
     size_t                    finished_size_{0};
     std::mutex                execute_mutex_{};
     std::condition_variable   execute_cv_{};
-    CStatus                   status_;
+    Status                    status_;
     GParamManager             param_manager_;
 };
 

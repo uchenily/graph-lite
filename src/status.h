@@ -12,21 +12,30 @@
 #include <string>
 #include <utility>
 
-class CStatus {
+class Status {
 public:
-    explicit CStatus() = default;
+    explicit Status() = default;
 
-    explicit CStatus(std::string errorInfo)
+    explicit Status(std::string errorInfo)
         : error_code_(-1)
         , error_info_(std::move(errorInfo)) {}
 
-    auto operator+=(const CStatus &cur) -> CStatus & {
+public:
+    static auto OK() {
+        return Status();
+    }
+
+    static auto Invalid(std::string errorInfo) {
+        return Status(std::move(errorInfo));
+    }
+
+    auto operator+=(const Status &cur) -> Status & {
         if (this->isOK() && !cur.isOK()) {
             this->error_code_ = cur.error_code_;
             this->error_info_ = cur.error_info_;
         }
 
-        return (*this);
+        return *this;
     }
 
     auto isOK() const -> bool {

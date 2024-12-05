@@ -19,25 +19,26 @@
 class GParamManager {
 protected:
     template <typename T,
-              std::enable_if_t<std::is_base_of<GParam, T>::value, int> = 0>
-    auto create(const std::string &key) -> CStatus {
+              std::enable_if_t<std::is_base_of_v<GParam, T>, int> = 0>
+    auto create(const std::string &key) -> Status {
         std::lock_guard<std::mutex> lk(mutex_);
 
         auto iter = params_.find(key);
         if (iter != params_.end()) {
             auto p = iter->second;
             return (typeid(*p).name() == typeid(T).name())
-                       ? CStatus()
-                       : CStatus("create [" + key + "] param duplicate");
+                       ? Status::OK()
+                       : Status::Invalid("create [" + key
+                                         + "] param duplicate");
         }
 
         auto param = std::make_shared<T>();
         params_.insert(std::pair<std::string, T *>(key, param));
-        return CStatus();
+        return Status::OK();
     }
 
     template <typename T,
-              std::enable_if_t<std::is_base_of<GParam, T>::value, int> = 0>
+              std::enable_if_t<std::is_base_of_v<GParam, T>, int> = 0>
     auto get(const std::string &key) -> T * {
         auto iter = params_.find(key);
         if (iter == params_.end()) {
@@ -47,15 +48,17 @@ protected:
         return dynamic_cast<T *>(iter->second);
     }
 
-    auto setup() -> CStatus {
-        CStatus status;
+    auto setup() -> Status {
         for (auto &param : params_) {
-            status += param.second->setup();
+            auto status = param.second->setup();
+            if (!status.isOK()) {
+                return status;
+            }
         }
-        return status;
+        return Status::OK();
     }
 
-    void reset(const CStatus &curStatus) {
+    void reset(const Status &curStatus) {
         for (auto &param : params_) {
             param.second->reset(curStatus);
         }

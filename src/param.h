@@ -23,15 +23,15 @@ protected:
      * exec before all node run.
      * @return
      */
-    virtual auto setup() -> CStatus {
-        return CStatus();
+    virtual auto setup() -> Status {
+        return Status::OK();
     }
 
     /**
      * exec after all node run finished.
      * @param curStatus
      */
-    virtual void reset(const CStatus &curStatus) {}
+    virtual void reset(const Status &curStatus) {}
 
     friend class GParamManager;
 };

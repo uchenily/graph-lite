@@ -12,22 +12,22 @@
 #include "./src/CGraph-lite.h"
 
 class MyNode1 : public GNode {
-    auto run() -> CStatus override {
+    auto run() -> Status override {
         std::cout << getName() << ": sleep 1s.\n";
         std::this_thread::sleep_for(std::chrono::seconds(1));
-        return CStatus();
+        return Status::OK();
     }
 };
 
 class MyNode2 : public GNode {
-    auto run() -> CStatus override {
+    auto run() -> Status override {
         std::cout << getName() << ": sleep 2s.\n";
         std::this_thread::sleep_for(std::chrono::seconds(2));
-        return CStatus();
+        return Status::OK();
     }
 };
 
-void tutorial_simple() {
+auto main() -> int {
     MyNode1 a;
     MyNode2 b;
     MyNode1 c;
@@ -40,9 +40,5 @@ void tutorial_simple() {
     pipeline->registerNode("nodeD", &d, {&b, &c});
 
     pipeline->process();
-}
-
-auto main() -> int {
-    tutorial_simple();
     return 0;
 }
