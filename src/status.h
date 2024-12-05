@@ -3,7 +3,7 @@
 @Contact: chunel@foxmail.com
 @File: status.h
 @Time: 2024/9/6 20:31
-@Desc: 
+@Desc:
 ***************************/
 
 #ifndef CGRAPH_LITE_STATUS_H
@@ -20,7 +20,7 @@ public:
         this->error_info_ = errorInfo;
     }
 
-    CStatus& operator+=(const CStatus& cur) {
+    CStatus &operator+=(const CStatus &cur) {
         if (this->isOK() && !cur.isOK()) {
             this->error_code_ = cur.error_code_;
             this->error_info_ = cur.error_info_;
@@ -42,8 +42,8 @@ public:
     }
 
 private:
-    int error_code_ { 0 };
+    int         error_code_{0};
     std::string error_info_;
 };
 
-#endif //CGRAPH_LITE_STATUS_H
+#endif // CGRAPH_LITE_STATUS_H

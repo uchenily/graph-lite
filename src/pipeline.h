@@ -9,17 +9,17 @@
 #ifndef CGRAPH_LITE_PIPELINE_H
 #define CGRAPH_LITE_PIPELINE_H
 
+#include <algorithm>
+#include <atomic>
+#include <memory>
+#include <mutex>
 #include <set>
 #include <vector>
-#include <atomic>
-#include <algorithm>
-#include <mutex>
-#include <memory>
 
 #include "element.h"
-#include "status.h"
-#include "schedule.h"
 #include "param_manager.h"
+#include "schedule.h"
+#include "status.h"
 
 class GPipeline {
 public:
@@ -45,18 +45,18 @@ public:
      * @param name
      * @return
      */
-    template<typename T,
-            std::enable_if_t<std::is_base_of<GElement, T>::value, int> = 0>
-    CStatus registerGElement(GElement** elementRef,
+    template <typename T,
+              std::enable_if_t<std::is_base_of<GElement, T>::value, int> = 0>
+    CStatus registerGElement(GElement                  **elementRef,
                              const std::set<GElement *> &depends,
-                             const std::string &name) {
-        if (std::any_of(depends.begin(), depends.end(), [](GElement* ptr) {
-            return !ptr;
-        })) {
-            return CStatus("input is null");    // no allow empty input
+                             const std::string          &name) {
+        if (std::any_of(depends.begin(), depends.end(), [](GElement *ptr) {
+                return !ptr;
+            })) {
+            return CStatus("input is null"); // no allow empty input
         }
 
-        (*elementRef) = new(std::nothrow) T();
+        (*elementRef) = new (std::nothrow) T();
         (*elementRef)->addElementInfo(depends, name, &param_manager_);
         elements_.emplace_back(*elementRef);
         return CStatus();
@@ -65,7 +65,7 @@ public:
 protected:
     void init() {
         status_ = CStatus();
-        for (auto* element : elements_) {
+        for (auto *element : elements_) {
             status_ += element->init();
         }
         schedule_ = std::make_unique<Schedule>();
@@ -78,14 +78,14 @@ protected:
     }
 
     void destroy() {
-        for (auto* element : elements_) {
+        for (auto *element : elements_) {
             status_ += element->destroy();
         }
         schedule_.reset();
     }
 
     void executeAll() {
-        for (auto* element : elements_) {
+        for (auto *element : elements_) {
             if (element->dependence_.empty()) {
                 schedule_->commit([this, element] {
                     execute(element);
@@ -94,13 +94,13 @@ protected:
         }
     }
 
-    void execute(GElement* element) {
+    void execute(GElement *element) {
         if (!status_.isOK()) {
             return;
         }
 
         status_ += element->run();
-        for (auto* cur : element->run_before_) {
+        for (auto *cur : element->run_before_) {
             if (--cur->left_depend_ <= 0) {
                 schedule_->commit([this, cur] {
                     execute(cur);
@@ -116,7 +116,7 @@ protected:
 
     void setup() {
         finished_size_ = 0;
-        for (auto* element : elements_) {
+        for (auto *element : elements_) {
             element->left_depend_ = element->dependence_.size();
         }
 
@@ -136,13 +136,13 @@ protected:
     }
 
 private:
-    std::vector<GElement *> elements_ {};
+    std::vector<GElement *>   elements_{};
     std::unique_ptr<Schedule> schedule_ = nullptr;
-    size_t finished_size_ {0};
-    std::mutex execute_mutex_ {};
-    std::condition_variable execute_cv_ {};
-    CStatus status_;
-    GParamManager param_manager_;
+    size_t                    finished_size_{0};
+    std::mutex                execute_mutex_{};
+    std::condition_variable   execute_cv_{};
+    CStatus                   status_;
+    GParamManager             param_manager_;
 };
 
-#endif //CGRAPH_LITE_PIPELINE_H
+#endif // CGRAPH_LITE_PIPELINE_H

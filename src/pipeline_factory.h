@@ -3,23 +3,23 @@
 @Contact: chunel@foxmail.com
 @File: pipeline_factory.h
 @Time: 2024/9/6 23:29
-@Desc: 
+@Desc:
 ***************************/
 
 #ifndef CGRAPH_LITE_PIPELINE_FACTORY_H
 #define CGRAPH_LITE_PIPELINE_FACTORY_H
 
-#include "status.h"
 #include "pipeline.h"
+#include "status.h"
 
 class GPipelineFactory {
 public:
-    static GPipeline* create() {
+    static GPipeline *create() {
         auto pipeline = new GPipeline();
         return pipeline;
     }
 
-    static CStatus remove(GPipeline* pipeline) {
+    static CStatus remove(GPipeline *pipeline) {
         if (pipeline) {
             delete pipeline;
             pipeline = nullptr;
@@ -29,4 +29,4 @@ public:
     }
 };
 
-#endif //CGRAPH_LITE_PIPELINE_FACTORY_H
+#endif // CGRAPH_LITE_PIPELINE_FACTORY_H

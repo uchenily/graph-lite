@@ -3,14 +3,13 @@
 @Contact: chunel@foxmail.com
 @File: T01-simple.cpp
 @Time: 2024/9/6 20:24
-@Desc: 
+@Desc:
 ***************************/
 
-#include <iostream>
 #include <chrono>
+#include <iostream>
 
 #include "./src/CGraph-lite.h"
-
 
 class MyNode1 : public GNode {
     CStatus run() override {
@@ -28,7 +27,6 @@ class MyNode2 : public GNode {
     }
 };
 
-
 void tutorial_simple() {
     GElement *a, *b, *c, *d = nullptr;
 
@@ -41,7 +39,6 @@ void tutorial_simple() {
     pipeline->process();
     GPipelineFactory::remove(pipeline);
 }
-
 
 int main() {
     tutorial_simple();
