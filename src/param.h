@@ -15,6 +15,7 @@
 
 class GParam {
 public:
+    virtual ~GParam() = default;
     std::mutex _param_shared_lock_;
 
 protected:
@@ -22,7 +23,7 @@ protected:
      * exec before all node run.
      * @return
      */
-    virtual CStatus setup() {
+    virtual auto setup() -> CStatus {
         return CStatus();
     }
 

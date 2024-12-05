@@ -11,7 +11,6 @@
 
 #include <condition_variable>
 #include <functional>
-#include <memory>
 #include <mutex>
 #include <queue>
 #include <thread>

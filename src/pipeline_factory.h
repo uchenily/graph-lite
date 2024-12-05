@@ -14,12 +14,12 @@
 
 class GPipelineFactory {
 public:
-    static GPipeline *create() {
+    static auto create() -> GPipeline * {
         auto pipeline = new GPipeline();
         return pipeline;
     }
 
-    static CStatus remove(GPipeline *pipeline) {
+    static auto remove(GPipeline *pipeline) -> CStatus {
         if (pipeline) {
             delete pipeline;
             pipeline = nullptr;

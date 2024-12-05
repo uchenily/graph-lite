@@ -10,6 +10,7 @@
 #define CGRAPH_LITE_PARAM_MANAGER_H
 
 #include <mutex>
+#include <typeinfo>
 #include <unordered_map>
 
 #include "param.h"
@@ -18,7 +19,7 @@ class GParamManager {
 protected:
     template <typename T,
               std::enable_if_t<std::is_base_of<GParam, T>::value, int> = 0>
-    CStatus create(const std::string &key) {
+    auto create(const std::string &key) -> CStatus {
         std::lock_guard<std::mutex> lk(mutex_);
         auto                        iter = params_.find(key);
         if (iter != params_.end()) {
@@ -35,7 +36,7 @@ protected:
 
     template <typename T,
               std::enable_if_t<std::is_base_of<GParam, T>::value, int> = 0>
-    T *get(const std::string &key) {
+    auto get(const std::string &key) -> T * {
         auto iter = params_.find(key);
         if (iter == params_.end()) {
             return nullptr;
@@ -44,7 +45,7 @@ protected:
         return dynamic_cast<T *>(iter->second);
     }
 
-    CStatus setup() {
+    auto setup() -> CStatus {
         CStatus status;
         for (auto &param : params_) {
             status += param.second->setup();

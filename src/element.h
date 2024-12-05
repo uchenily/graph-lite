@@ -18,35 +18,36 @@
 #include "status.h"
 
 class GElement {
+public:
+    explicit GElement() = default;
+    virtual ~GElement() = default;
+
 protected:
-    virtual CStatus init() {
+    virtual auto init() -> CStatus {
         return CStatus();
     }
 
-    virtual CStatus run() = 0;
+    virtual auto run() -> CStatus = 0;
 
-    virtual CStatus destroy() {
+    virtual auto destroy() -> CStatus {
         return CStatus();
     }
 
-    std::string getName() const {
+    auto getName() const -> std::string {
         return name_;
     }
 
     template <typename T,
               std::enable_if_t<std::is_base_of<GParam, T>::value, int> = 0>
-    CStatus createGParam(const std::string &key) {
+    auto createGParam(const std::string &key) -> CStatus {
         return param_manager_->create<T>(key);
     }
 
     template <typename T,
               std::enable_if_t<std::is_base_of<GParam, T>::value, int> = 0>
-    T *getGParam(const std::string &key) {
+    auto getGParam(const std::string &key) -> T * {
         return param_manager_->get<T>(key);
     }
-
-    explicit GElement() = default;
-    virtual ~GElement() = default;
 
 private:
     void addElementInfo(const std::set<GElement *> &depends,

@@ -10,7 +10,6 @@
 #define CGRAPH_LITE_PIPELINE_H
 
 #include <algorithm>
-#include <atomic>
 #include <memory>
 #include <mutex>
 #include <set>
@@ -28,9 +27,9 @@ public:
      * @param times
      * @return
      */
-    CStatus process(size_t times = 1) {
+    auto process(size_t times = 1) -> CStatus {
         init();
-        while (times-- && status_.isOK()) {
+        while (((times--) != 0u) && status_.isOK()) {
             run();
         }
         destroy();
@@ -47,11 +46,11 @@ public:
      */
     // template <typename T,
     //           std::enable_if_t<std::is_base_of<GElement, T>::value, int> = 0>
-    CStatus registerGElement(GElement                   *elementRef,
-                             const std::set<GElement *> &depends,
-                             const std::string          &name) {
+    auto registerGElement(GElement                   *elementRef,
+                          const std::set<GElement *> &depends,
+                          const std::string          &name) -> CStatus {
         if (std::any_of(depends.begin(), depends.end(), [](GElement *ptr) {
-                return !ptr;
+                return ptr == nullptr;
             })) {
             return CStatus("input is null"); // no allow empty input
         }

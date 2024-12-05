@@ -12,7 +12,7 @@
 #include "./src/CGraph-lite.h"
 
 class MyNode1 : public GNode {
-    CStatus run() override {
+    auto run() -> CStatus override {
         std::cout << getName() << ": sleep 1s.\n";
         std::this_thread::sleep_for(std::chrono::seconds(1));
         return CStatus();
@@ -20,7 +20,7 @@ class MyNode1 : public GNode {
 };
 
 class MyNode2 : public GNode {
-    CStatus run() override {
+    auto run() -> CStatus override {
         std::cout << getName() << ": sleep 2s.\n";
         std::this_thread::sleep_for(std::chrono::seconds(2));
         return CStatus();
@@ -44,7 +44,7 @@ void tutorial_simple() {
     GPipelineFactory::remove(pipeline);
 }
 
-int main() {
+auto main() -> int {
     tutorial_simple();
     return 0;
 }

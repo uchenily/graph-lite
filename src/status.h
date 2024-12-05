@@ -10,17 +10,17 @@
 #define CGRAPH_LITE_STATUS_H
 
 #include <string>
+#include <utility>
 
 class CStatus {
 public:
     explicit CStatus() = default;
 
-    explicit CStatus(const std::string &errorInfo) {
-        this->error_code_ = -1;
-        this->error_info_ = errorInfo;
-    }
+    explicit CStatus(std::string errorInfo)
+        : error_code_(-1)
+        , error_info_(std::move(errorInfo)) {}
 
-    CStatus &operator+=(const CStatus &cur) {
+    auto operator+=(const CStatus &cur) -> CStatus & {
         if (this->isOK() && !cur.isOK()) {
             this->error_code_ = cur.error_code_;
             this->error_info_ = cur.error_info_;
@@ -29,15 +29,15 @@ public:
         return (*this);
     }
 
-    bool isOK() const {
+    auto isOK() const -> bool {
         return 0 == error_code_;
     }
 
-    int getCode() const {
+    auto getCode() const -> int {
         return error_code_;
     }
 
-    std::string getInfo() const {
+    auto getInfo() const -> std::string {
         return error_info_;
     }
 
