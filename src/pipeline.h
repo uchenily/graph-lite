@@ -46,25 +46,28 @@ public:
      */
     // template <typename T,
     //           std::enable_if_t<std::is_base_of<GElement, T>::value, int> = 0>
-    auto registerGElement(const std::string          &name,
-                          GElement                   *element,
-                          const std::set<GElement *> &depends) -> CStatus {
-        if (std::any_of(depends.begin(), depends.end(), [](GElement *ptr) {
-                return ptr == nullptr;
-            })) {
+    auto registerNode(const std::string       &name,
+                      GNode                   *node,
+                      const std::set<GNode *> &dependencies) -> CStatus {
+        // check not null
+        if (std::any_of(dependencies.begin(),
+                        dependencies.end(),
+                        [](GNode *ptr) {
+                            return ptr == nullptr;
+                        })) {
             return CStatus("input is null"); // no allow empty input
         }
 
-        element->addElementInfo(depends, name, &param_manager_);
-        elements_.emplace_back(element);
+        node->addNodeInfo(dependencies, name, &param_manager_);
+        nodes_.emplace_back(node);
         return CStatus();
     }
 
 protected:
     void init() {
         status_ = CStatus();
-        for (auto *element : elements_) {
-            status_ += element->init();
+        for (auto *node : nodes_) {
+            status_ += node->init();
         }
         schedule_ = std::make_unique<Schedule>();
     }
@@ -76,29 +79,29 @@ protected:
     }
 
     void destroy() {
-        for (auto *element : elements_) {
-            status_ += element->destroy();
+        for (auto *node : nodes_) {
+            status_ += node->destroy();
         }
         schedule_.reset();
     }
 
     void executeAll() {
-        for (auto *element : elements_) {
-            if (element->dependence_.empty()) {
-                schedule_->commit([this, element] {
-                    execute(element);
+        for (auto *node : nodes_) {
+            if (node->dependencies_.empty()) {
+                schedule_->commit([this, node] {
+                    execute(node);
                 });
             }
         }
     }
 
-    void execute(GElement *element) {
+    void execute(GNode *node) {
         if (!status_.isOK()) {
             return;
         }
 
-        status_ += element->run();
-        for (auto *cur : element->run_before_) {
+        status_ += node->run();
+        for (auto *cur : node->run_before_) {
             if (--cur->left_depend_ <= 0) {
                 schedule_->commit([this, cur] {
                     execute(cur);
@@ -107,15 +110,15 @@ protected:
         }
 
         std::unique_lock<std::mutex> lk(execute_mutex_);
-        if (++finished_size_ >= elements_.size() || !status_.isOK()) {
+        if (++finished_size_ >= nodes_.size() || !status_.isOK()) {
             execute_cv_.notify_one();
         }
     }
 
     void setup() {
         finished_size_ = 0;
-        for (auto *element : elements_) {
-            element->left_depend_ = element->dependence_.size();
+        for (auto *node : nodes_) {
+            node->left_depend_ = node->dependencies_.size();
         }
 
         status_ += param_manager_.setup();
@@ -126,7 +129,7 @@ protected:
         {
             std::unique_lock<std::mutex> lk(execute_mutex_);
             execute_cv_.wait(lk, [this] {
-                return finished_size_ >= elements_.size() || !status_.isOK();
+                return finished_size_ >= nodes_.size() || !status_.isOK();
             });
         }
 
@@ -134,7 +137,7 @@ protected:
     }
 
 private:
-    std::vector<GElement *>   elements_{};
+    std::vector<GNode *>      nodes_{};
     std::unique_ptr<Schedule> schedule_ = nullptr;
     size_t                    finished_size_{0};
     std::mutex                execute_mutex_{};

@@ -17,10 +17,10 @@
 #include "param_manager.h"
 #include "status.h"
 
-class GElement {
+class GNode {
 public:
-    explicit GElement() = default;
-    virtual ~GElement() = default;
+    explicit GNode() = default;
+    virtual ~GNode() = default;
 
 protected:
     virtual auto init() -> CStatus {
@@ -50,29 +50,27 @@ protected:
     }
 
 private:
-    void addElementInfo(const std::set<GElement *> &depends,
-                        const std::string          &name,
-                        GParamManager              *pm) {
-        for (const auto &depend : depends) {
-            dependence_.insert(depend);
+    void addNodeInfo(const std::set<GNode *> &dependencies,
+                     const std::string       &name,
+                     GParamManager           *manager) {
+        for (const auto &depend : dependencies) {
+            dependencies_.insert(depend);
             depend->run_before_.insert(this);
         }
-        left_depend_ = dependence_.size();
+        left_depend_ = dependencies_.size();
         name_ = name;
-        param_manager_ = pm;
+        param_manager_ = manager;
     }
 
 private:
-    std::set<GElement *> run_before_{};
-    std::set<GElement *> dependence_{};
-    std::atomic<size_t>  left_depend_{0};
-    std::string          name_{};
-    GParamManager       *param_manager_ = nullptr;
+    std::set<GNode *>   run_before_{};
+    std::set<GNode *>   dependencies_{};
+    std::atomic<size_t> left_depend_{0};
+    std::string         name_{};
+    GParamManager      *param_manager_ = nullptr;
 
     friend class GPipeline;
     friend class Schedule;
 };
-
-using GNode = GElement;
 
 #endif // CGRAPH_LITE_ELEMENT_H
