@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(CGRAPH_LITE_TUTORIAL_LIST
     T01-Simple
-    T02-Param
+    # T02-Param
 )
 
 foreach(tut ${CGRAPH_LITE_TUTORIAL_LIST})

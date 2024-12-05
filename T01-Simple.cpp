@@ -28,13 +28,17 @@ class MyNode2 : public GNode {
 };
 
 void tutorial_simple() {
-    GElement *a, *b, *c, *d = nullptr;
+    // GElement *a, *b, *c, *d = nullptr;
+    MyNode1 a;
+    MyNode2 b;
+    MyNode1 c;
+    MyNode2 d;
 
     auto pipeline = GPipelineFactory::create();
-    pipeline->registerGElement<MyNode1>(&a, {}, "nodeA");
-    pipeline->registerGElement<MyNode2>(&b, {a}, "nodeB");
-    pipeline->registerGElement<MyNode1>(&c, {a}, "nodeC");
-    pipeline->registerGElement<MyNode2>(&d, {b, c}, "nodeD");
+    pipeline->registerGElement(&a, {}, "nodeA");
+    pipeline->registerGElement(&b, {&a}, "nodeB");
+    pipeline->registerGElement(&c, {&a}, "nodeC");
+    pipeline->registerGElement(&d, {&b, &c}, "nodeD");
 
     pipeline->process();
     GPipelineFactory::remove(pipeline);
