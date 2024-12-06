@@ -1,12 +1,4 @@
 repos:
-  - repo: local
-    hooks:
-      - id: compact-json
-        name: Compact JSON files
-        entry: python utility/compact_json.py
-        language: system
-        types: [json]
-        pass_filenames: true
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: "v4.6.0"
