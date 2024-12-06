@@ -9,8 +9,8 @@
 #ifndef CGRAPH_LITE_CGRAPH_LITE_H
 #define CGRAPH_LITE_CGRAPH_LITE_H
 
-#include "element.h"
-#include "pipeline_factory.h"
+#include "node.h"
+#include "pipeline.h"
 #include "status.h"
 
 #endif // CGRAPH_LITE_CGRAPH_LITE_H

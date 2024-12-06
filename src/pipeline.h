@@ -15,7 +15,7 @@
 #include <set>
 #include <vector>
 
-#include "element.h"
+#include "node.h"
 #include "schedule.h"
 #include "status.h"
 
@@ -115,6 +115,14 @@ private:
     std::mutex                execute_mutex_{};
     std::condition_variable   execute_cv_{};
     Status                    status_;
+};
+
+class GPipelineFactory {
+public:
+    static auto create() {
+        auto pipeline = std::make_shared<GPipeline>();
+        return pipeline;
+    }
 };
 
 #endif // CGRAPH_LITE_PIPELINE_H

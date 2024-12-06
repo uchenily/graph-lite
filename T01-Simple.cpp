@@ -1,4 +1,4 @@
-#include "./src/CGraph-lite.h"
+#include "./src/graph_lite.hpp"
 
 #include <iostream>
 
