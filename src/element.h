@@ -46,8 +46,8 @@ private:
                      const std::string       &name,
                      GParamManager           *manager) {
         for (const auto &input : inputs) {
-            inputs_.insert(input);
-            input->run_before_.insert(this);
+            this->inputs_.insert(input);
+            input->outputs_.insert(this);
         }
         num_pending_ = inputs_.size();
         name_ = name;
@@ -55,8 +55,8 @@ private:
     }
 
 private:
-    std::set<GNode *>   run_before_{};
     std::set<GNode *>   inputs_{};
+    std::set<GNode *>   outputs_{};
     std::atomic<size_t> num_pending_{0};
     std::string         name_{};
     GParamManager      *param_manager_ = nullptr;

@@ -21,16 +21,16 @@ class MyNode2 : public GNode {
 };
 
 auto main() -> int {
-    //    A      1000ms
+    //    A      1ms
     // +--+--+
-    // B     C   1000ms/1ms
+    // B     C   1000ms/1000ms
     // +--+--+
     //    D      1ms
 
     MyNode1 a;
     MyNode2 b;
-    MyNode1 c;
-    MyNode2 d;
+    MyNode2 c;
+    MyNode1 d;
 
     auto pipeline = GPipelineFactory::create();
     pipeline->registerNode("nodeA", &a, {&b, &c});

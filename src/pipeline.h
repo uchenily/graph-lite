@@ -78,7 +78,7 @@ protected:
         }
 
         status_ += node->run();
-        for (auto *cur : node->run_before_) {
+        for (auto *cur : node->outputs_) {
             if (--cur->num_pending_ <= 0) {
                 schedule_->submit([this, cur] {
                     execute(cur);
@@ -94,9 +94,9 @@ protected:
 
     void setup() {
         finished_size_ = 0;
-        for (auto *node : nodes_) {
-            node->num_pending_ = node->inputs_.size();
-        }
+        // for (auto *node : nodes_) {
+        //     node->num_pending_ = node->inputs_.size();
+        // }
 
         status_ += param_manager_.setup();
     }
