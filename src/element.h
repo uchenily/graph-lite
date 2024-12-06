@@ -23,15 +23,7 @@ public:
     virtual ~GNode() = default;
 
 protected:
-    virtual auto init() -> Status {
-        return Status::OK();
-    }
-
     virtual auto run() -> Status = 0;
-
-    virtual auto destroy() -> Status {
-        return Status::OK();
-    }
 
     auto getName() const -> std::string {
         return name_;
@@ -39,13 +31,13 @@ protected:
 
     template <typename T,
               std::enable_if_t<std::is_base_of_v<GParam, T>, int> = 0>
-    auto createGParam(const std::string &key) -> Status {
+    auto createParam(const std::string &key) -> Status {
         return param_manager_->create<T>(key);
     }
 
     template <typename T,
               std::enable_if_t<std::is_base_of_v<GParam, T>, int> = 0>
-    auto getGParam(const std::string &key) -> T * {
+    auto getParam(const std::string &key) -> T * {
         return param_manager_->get<T>(key);
     }
 

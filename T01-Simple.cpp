@@ -1,43 +1,42 @@
-/***************************
-@Author: Chunel
-@Contact: chunel@foxmail.com
-@File: T01-simple.cpp
-@Time: 2024/9/6 20:24
-@Desc:
-***************************/
+#include "./src/CGraph-lite.h"
 
-#include <chrono>
 #include <iostream>
 
-#include "./src/CGraph-lite.h"
+using namespace std::literals;
 
 class MyNode1 : public GNode {
     auto run() -> Status override {
-        std::cout << getName() << ": sleep 1s.\n";
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::cout << getName() << ": sleep 1ms\n";
+        std::this_thread::sleep_for(1ms);
         return Status::OK();
     }
 };
 
 class MyNode2 : public GNode {
     auto run() -> Status override {
-        std::cout << getName() << ": sleep 2s.\n";
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::cout << getName() << ": sleep 1000ms\n";
+        std::this_thread::sleep_for(1000ms);
         return Status::OK();
     }
 };
 
 auto main() -> int {
+    //    A      1000ms
+    // +--+--+
+    // B     C   1000ms/1ms
+    // +--+--+
+    //    D      1ms
+
     MyNode1 a;
     MyNode2 b;
     MyNode1 c;
     MyNode2 d;
 
     auto pipeline = GPipelineFactory::create();
-    pipeline->registerNode("nodeA", &a, {});
-    pipeline->registerNode("nodeB", &b, {&a});
-    pipeline->registerNode("nodeC", &c, {&a});
-    pipeline->registerNode("nodeD", &d, {&b, &c});
+    pipeline->registerNode("nodeA", &a, {&b, &c});
+    pipeline->registerNode("nodeB", &b, {&d});
+    pipeline->registerNode("nodeC", &c, {&d});
+    pipeline->registerNode("nodeD", &d, {});
 
     pipeline->process();
     return 0;

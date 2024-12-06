@@ -23,16 +23,14 @@
 class GPipeline {
 public:
     /**
-     * init() + run(n) + destroy()
      * @param times
      * @return
      */
     auto process(size_t times = 1) -> Status {
-        init();
+        schedule_ = std::make_unique<Schedule>();
         while (((times--) != 0u) && status_.isOK()) {
             run();
         }
-        destroy();
         return status_;
     }
 
@@ -64,27 +62,8 @@ public:
     }
 
 protected:
-    void init() {
-        for (auto *node : nodes_) {
-            status_ += node->init();
-        }
-        schedule_ = std::make_unique<Schedule>();
-    }
-
     void run() {
         setup();
-        executeAll();
-        reset();
-    }
-
-    void destroy() {
-        for (auto *node : nodes_) {
-            status_ += node->destroy();
-        }
-        schedule_.reset();
-    }
-
-    void executeAll() {
         for (auto *node : nodes_) {
             if (node->dependencies_.empty()) {
                 schedule_->commit([this, node] {
@@ -92,6 +71,7 @@ protected:
                 });
             }
         }
+        reset();
     }
 
     void execute(GNode *node) {
