@@ -38,7 +38,7 @@ public:
      * register element(node) into pipeline
      * @tparam T
      * @param elementRef
-     * @param depends
+     * @param inputs
      * @param name
      * @return
      */
@@ -46,17 +46,15 @@ public:
     //           std::enable_if_t<std::is_base_of<GElement, T>::value, int> = 0>
     auto registerNode(const std::string       &name,
                       GNode                   *node,
-                      const std::set<GNode *> &dependencies) -> Status {
+                      const std::set<GNode *> &inputs) -> Status {
         // check not null
-        if (std::any_of(dependencies.begin(),
-                        dependencies.end(),
-                        [](GNode *ptr) {
-                            return ptr == nullptr;
-                        })) {
+        if (std::any_of(inputs.begin(), inputs.end(), [](GNode *ptr) {
+                return ptr == nullptr;
+            })) {
             return Status::Invalid("input is null"); // no allow empty input
         }
 
-        node->addNodeInfo(dependencies, name, &param_manager_);
+        node->addNodeInfo(inputs, name, &param_manager_);
         nodes_.emplace_back(node);
         return Status::OK();
     }
@@ -65,8 +63,8 @@ protected:
     void run() {
         setup();
         for (auto *node : nodes_) {
-            if (node->dependencies_.empty()) {
-                schedule_->commit([this, node] {
+            if (node->inputs_.empty()) {
+                schedule_->submit([this, node] {
                     execute(node);
                 });
             }
@@ -81,8 +79,8 @@ protected:
 
         status_ += node->run();
         for (auto *cur : node->run_before_) {
-            if (--cur->left_depend_ <= 0) {
-                schedule_->commit([this, cur] {
+            if (--cur->num_pending_ <= 0) {
+                schedule_->submit([this, cur] {
                     execute(cur);
                 });
             }
@@ -97,7 +95,7 @@ protected:
     void setup() {
         finished_size_ = 0;
         for (auto *node : nodes_) {
-            node->left_depend_ = node->dependencies_.size();
+            node->num_pending_ = node->inputs_.size();
         }
 
         status_ += param_manager_.setup();

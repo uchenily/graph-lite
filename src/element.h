@@ -42,22 +42,22 @@ protected:
     }
 
 private:
-    void addNodeInfo(const std::set<GNode *> &dependencies,
+    void addNodeInfo(const std::set<GNode *> &inputs,
                      const std::string       &name,
                      GParamManager           *manager) {
-        for (const auto &depend : dependencies) {
-            dependencies_.insert(depend);
-            depend->run_before_.insert(this);
+        for (const auto &input : inputs) {
+            inputs_.insert(input);
+            input->run_before_.insert(this);
         }
-        left_depend_ = dependencies_.size();
+        num_pending_ = inputs_.size();
         name_ = name;
         param_manager_ = manager;
     }
 
 private:
     std::set<GNode *>   run_before_{};
-    std::set<GNode *>   dependencies_{};
-    std::atomic<size_t> left_depend_{0};
+    std::set<GNode *>   inputs_{};
+    std::atomic<size_t> num_pending_{0};
     std::string         name_{};
     GParamManager      *param_manager_ = nullptr;
 
