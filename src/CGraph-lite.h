@@ -10,7 +10,6 @@
 #define CGRAPH_LITE_CGRAPH_LITE_H
 
 #include "element.h"
-#include "param.h"
 #include "pipeline_factory.h"
 #include "status.h"
 

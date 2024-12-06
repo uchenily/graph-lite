@@ -16,7 +16,6 @@
 #include <vector>
 
 #include "element.h"
-#include "param_manager.h"
 #include "schedule.h"
 #include "status.h"
 
@@ -54,7 +53,7 @@ public:
             return Status::Invalid("input is null"); // no allow empty input
         }
 
-        node->addNodeInfo(inputs, name, &param_manager_);
+        node->addNodeInfo(inputs, name);
         nodes_.emplace_back(node);
         return Status::OK();
     }
@@ -97,8 +96,6 @@ protected:
         // for (auto *node : nodes_) {
         //     node->num_pending_ = node->inputs_.size();
         // }
-
-        status_ += param_manager_.setup();
     }
 
     void reset() {
@@ -109,8 +106,6 @@ protected:
                 return finished_size_ >= nodes_.size() || !status_.isOK();
             });
         }
-
-        param_manager_.reset(status_);
     }
 
 private:
@@ -120,7 +115,6 @@ private:
     std::mutex                execute_mutex_{};
     std::condition_variable   execute_cv_{};
     Status                    status_;
-    GParamManager             param_manager_;
 };
 
 #endif // CGRAPH_LITE_PIPELINE_H

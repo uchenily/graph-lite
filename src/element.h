@@ -13,8 +13,6 @@
 #include <set>
 #include <string>
 
-#include "param.h"
-#include "param_manager.h"
 #include "status.h"
 
 class GNode {
@@ -29,29 +27,26 @@ protected:
         return name_;
     }
 
-    template <typename T,
-              std::enable_if_t<std::is_base_of_v<GParam, T>, int> = 0>
-    auto createParam(const std::string &key) -> Status {
-        return param_manager_->create<T>(key);
-    }
-
-    template <typename T,
-              std::enable_if_t<std::is_base_of_v<GParam, T>, int> = 0>
-    auto getParam(const std::string &key) -> T * {
-        return param_manager_->get<T>(key);
-    }
+    // template <typename T,
+    //           std::enable_if_t<std::is_base_of_v<GParam, T>, int> = 0>
+    // auto createParam(const std::string &key) -> Status {
+    //     return param_manager_->create<T>(key);
+    // }
+    //
+    // template <typename T,
+    //           std::enable_if_t<std::is_base_of_v<GParam, T>, int> = 0>
+    // auto getParam(const std::string &key) -> T * {
+    //     return param_manager_->get<T>(key);
+    // }
 
 private:
-    void addNodeInfo(const std::set<GNode *> &inputs,
-                     const std::string       &name,
-                     GParamManager           *manager) {
+    void addNodeInfo(const std::set<GNode *> &inputs, const std::string &name) {
         for (const auto &input : inputs) {
             this->inputs_.insert(input);
             input->outputs_.insert(this);
         }
         num_pending_ = inputs_.size();
         name_ = name;
-        param_manager_ = manager;
     }
 
 private:
@@ -59,7 +54,6 @@ private:
     std::set<GNode *>   outputs_{};
     std::atomic<size_t> num_pending_{0};
     std::string         name_{};
-    GParamManager      *param_manager_ = nullptr;
 
     friend class GPipeline;
     friend class Schedule;
