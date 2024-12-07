@@ -30,7 +30,7 @@ public:
     }
 
     auto operator+=(const Status &cur) -> Status & {
-        if (this->isOK() && !cur.isOK()) {
+        if (this->ok() && !cur.ok()) {
             this->error_code_ = cur.error_code_;
             this->error_info_ = cur.error_info_;
         }
@@ -38,7 +38,7 @@ public:
         return *this;
     }
 
-    auto isOK() const -> bool {
+    auto ok() const -> bool {
         return 0 == error_code_;
     }
 

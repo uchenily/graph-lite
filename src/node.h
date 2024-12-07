@@ -52,8 +52,9 @@ private:
 private:
     std::set<GNode *>   inputs_{};
     std::set<GNode *>   outputs_{};
-    std::atomic<size_t> num_pending_{0};
-    std::string         name_{};
+    std::atomic<size_t> num_pending_{
+        0}; // 在运行当前节点前, 剩余需要执行的依赖节点个数
+    std::string name_{};
 
     friend class GPipeline;
     friend class Schedule;

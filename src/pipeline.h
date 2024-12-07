@@ -27,7 +27,7 @@ public:
      */
     auto process(size_t times = 1) -> Status {
         schedule_ = std::make_unique<Schedule>();
-        while (((times--) != 0u) && status_.isOK()) {
+        while (((times--) != 0u) && status_.ok()) {
             run();
         }
         return status_;
@@ -41,8 +41,6 @@ public:
      * @param name
      * @return
      */
-    // template <typename T,
-    //           std::enable_if_t<std::is_base_of<GElement, T>::value, int> = 0>
     auto registerNode(const std::string       &name,
                       GNode                   *node,
                       const std::set<GNode *> &inputs) -> Status {
@@ -72,12 +70,14 @@ protected:
     }
 
     void execute(GNode *node) {
-        if (!status_.isOK()) {
+        if (!status_.ok()) {
             return;
         }
 
         status_ += node->run();
         for (auto *cur : node->outputs_) {
+            // 没有依赖,或者所有的依赖都已经完成,
+            // 现在可以将这个节点加到执行队列中
             if (--cur->num_pending_ <= 0) {
                 schedule_->submit([this, cur] {
                     execute(cur);
@@ -86,7 +86,7 @@ protected:
         }
 
         std::unique_lock<std::mutex> lk(execute_mutex_);
-        if (++finished_size_ >= nodes_.size() || !status_.isOK()) {
+        if (++finished_size_ >= nodes_.size() || !status_.ok()) {
             execute_cv_.notify_one();
         }
     }
@@ -103,7 +103,7 @@ protected:
         {
             std::unique_lock<std::mutex> lk(execute_mutex_);
             execute_cv_.wait(lk, [this] {
-                return finished_size_ >= nodes_.size() || !status_.isOK();
+                return finished_size_ >= nodes_.size() || !status_.ok();
             });
         }
     }
